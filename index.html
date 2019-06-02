@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
 
   <!-- Basic Page Needs
@@ -13,48 +14,101 @@
 
   <!-- CSS
   –––––––––––––––––––––––––––––––––––––––––––––––––– -->
-  <link rel="stylesheet" href="css/normalize.css">
-  <link rel="stylesheet" href="">
+  <link rel="stylesheet" href="assets/css/normalize.css">
+  <link rel="stylesheet" href="assets/css/skeleton.css">
+  <link rel="stylesheet" href="assets/css/styles.css">
 
 </head>
-<body>
 
+<body>
+    <section id="hero" class="hero u-full-width">
+        <div class="hero-image">
+          <img class= "scale-with-grid" src="assets/images/photo-1517544845501-bb7810f64d76.jpg" alt="moons" />
+        </div>
+        <div class="container centered">
+          <div class="twelve columns">
+            <h1 class="separator">Moon Madness</h1>
+            <h3>Correlations between environmental factors and type of crime</h3>
+          </div>
+        </div>
+      </section>
   <div class="container">
     <div class="row">
-      <div class="one-half column" style="margin-top: 25%">
-        <h1>Crime Spotter</h1>
-        <p>Placeholder</p>
+      <div class="three columns u-pull-left">
+          <form>
+              <div class="row">
+                <div class="six columns">
+                  <label for="userCitySelection">Choose a City</label>
+                  <select class="u-full-width" id="userCitySelection">
+                    <option value="Option 1">Chandler</option>
+                    <option value="Option 2">Detroit</option>
+                    <option value="Option 3">Mesa</option>
+                    <option value="Option 4">San Francisco</option>
+                    <option value="Option 5">Scottsdale</option>
+                    <option value="Option 6">Seattle</option>
+                  </select>
+                </div>
+              </div>
+              <label for="numberOfEntries">Number of Entries</label>
+              <input class="u-full-width" type="text" placeholder="Number 0-100" id="userEntrySelection">
+              <input class="button-submit" type="submit" value="Submit">
+            </form>
+      </div>
+      <div class="five columns">
+          <img src="https://via.placeholder.com/450" />
+      </div>
+      <div class="three columns">
+        <div class="row moon-images absolute">
+          <div class="five columns u-pull-right">
+          <img class= "scale-with-grid" src="assets/images/new-moon.jpg" alt="new moon" />
+          <img class= "scale-with-grid" src="assets/images/first-quarter-moon.jpg" alt="first quarter moon" />
+          <img class= "scale-with-grid" src="assets/images/new-moon.jpg" alt="new moon" />
+          <img class= "scale-with-grid" src="assets/images/new-moon.jpg" alt="new moon" />
+
+          </div>
+          </div>
+      </div>
     </div>
   </div>
-
-<div class="row">
-  <div class ="u-full-width">
-  <table>
-    <thead>
-      <tr>
-        <th>Name</th>
-        <th>Age</th>
-        <th>Sex</th>
-        <th>Location</th>
-      </tr>
-    </thead>
-    <tbody>
-      <tr>
-        <td>Dave Gamache</td>
-        <td>26</td>
-        <td>Male</td>
-        <td>San Francisco</td>
-      </tr>
-      <tr>
-        <td>Dwayne Johnson</td>
-        <td>42</td>
-        <td>Male</td>
-        <td>Hayward</td>
-      </tr>
-    </tbody>
-  </table>
+<div class="container">
+  <div class="row">
+    <div class="offset-by-two eight columns">
+      <table>
+        <thead>
+          <tr>
+            <th>Crime Type</th>
+            <th>Date Occured</th>
+            <th>Location</th>
+            <th>Weather</th>
+            <th>Moon Phase</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Assault</td>
+            <td>April 12, 2017</td>
+            <td>Mesa, AZ</td>
+            <td>Partly Cloudy</td>
+            <td>Full Moon</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
   </div>
-  </div>
+</div>
 
+<section class="footer u-full-width">
+    <div class="container">
+      <div class="row">
+        <div class="twelve columns">
+          <a href="https://darksky.net/poweredby"><p class="centered">Powered By Dark Sky</p></a>
+        </div>
+      </div>
+    </div>
+  </section>
+<!-- jQuery and javascript  -->
+<script src="https://cdn.jsdelivr.net/momentjs/2.12.0/moment.min.js"></script>
+<script src="assets/javascript/app.js"></script>
 </body>
+
 </html>

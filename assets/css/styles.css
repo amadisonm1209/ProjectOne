@@ -1,0 +1,21 @@
+.centered {
+   text-align: center;
+}
+
+.hero-image {
+   margin: 50px 0 25px 0;
+   background-image: url("../images/photo-1517544845501-bb7810f64d76.jpg");
+   background-size: cover;
+   color: azure;
+}
+.scale-with-grid {
+    outline: 0; 
+    max-width: 100%; 
+    height: auto; 
+}
+.separator {
+   margin-bottom: 20px;
+}
+.u-pull-right {
+   float: right; }
+ 
