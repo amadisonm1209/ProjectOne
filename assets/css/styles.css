@@ -56,3 +56,9 @@ a{
    }
 }
 
+/* map style */
+
+#map {
+   min-height: 355px;
+   margin-top: 25px;
+}
