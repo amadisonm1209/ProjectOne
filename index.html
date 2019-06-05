@@ -50,12 +50,14 @@
             </div>
           </div>
           <label for="numberOfEntries">Number of Entries</label>
-          <input class="u-full-width" type="text" placeholder="Number 0-100" id="userEntrySelection">
+          <input class="u-full-width" type="number" placeholder="Number 1-100" id="userEntrySelection" min="1" max="100">
           <input class="button-submit" type="submit" value="Submit">
         </form>
       </div>
       <div class="six columns">
-        <div id="map"></div>
+        <div id="map">
+          <img class="scale-with-grid crime" src="assets/images/crime_scene.jpg" alt="crime scene" />
+        </div>
       </div>
       <div class="three columns">
         <div class="row moon-images absolute">

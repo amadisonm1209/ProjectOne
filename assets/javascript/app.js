@@ -1,10 +1,12 @@
 
-$("#sky").on("click", function(event) {
+
+
+$(".button-submit").on("click", function(event) {
 
     event.preventDefault();
 
     var incidentLatLong;
-    var incidentTime = "2015-10-04T02:09:00.000Z";
+    var incidentTime = "2015-11-04T02:09:00.000Z";
     var timeConvertedUnix = moment(incidentTime).format("X");
 
     console.log(timeConvertedUnix);
