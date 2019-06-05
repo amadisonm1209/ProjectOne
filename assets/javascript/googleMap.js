@@ -97,3 +97,9 @@ function initMap(latitude, longitude)  {
 
 // function to click moons 
 
+$(".moon-image").on("click", function() {
+ var moonPhase = $(this).data("value");
+ console.log(moonPhase);
+
+})
+
