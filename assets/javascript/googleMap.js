@@ -95,4 +95,5 @@ function initMap(latitude, longitude)  {
        });
 }
 
+// function to click moons 
 
