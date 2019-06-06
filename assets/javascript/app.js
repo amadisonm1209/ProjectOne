@@ -16,6 +16,7 @@ var Chandler = {
     lat: 33.3039917,
     lng: -111.8318716,
     pop: "253,458",
+    id: "chn-az",
 
 };
 
@@ -23,30 +24,35 @@ var Mesa = {
     lat: 33.420614,
     lng: -111.789240,
     pop: "508,958",
+    id: "mesa-az",
 };
 
 var Scottsdale = {
     lat: 33.483901,
     lng: -111.908444,
     pop: "246,645",
+    id: "sct-az",
 };
 
 var Seattle = {
     lat: 47.607803,
     lng: -122.331341,
     pop: "744,955",
+    id: "sea-wa",
 };
 
 var SanFrancisco = {
     lat: 37.769866,
     lng: -122.426256,
     pop: "883,305",
+    id: "sf-ca",
 };
 
 var Detroit = {
     lat: 42.336762,
     lng: -83.066283,
     pop: "673,104",
+    id: "dt-mi",
 };
 
 // on click submit button event
@@ -56,11 +62,42 @@ submitButton.on("click", function (event) {
     event.preventDefault();
 
     // grabbing limit value
-    var limit = $("#userEntrySelection").val().trim();
+    var limit = $("#userEntrySelection").val();
+    var place 
+    
+     // grabbing value of city selected
+     city = $("#userCitySelection option:selected").val()
+      
+     // returning coordinates and initiating map for each city
+     switch (city) {
+         case "Option 1":
+             initMap(Chandler.lat, Chandler.lng);
+             place = Chandler.id;
+             break;
+         case "Option 2":
+             initMap(Detroit.lat, Detroit.lng);
+             place = Detroit.id;
+             break;
+         case "Option 3":
+             initMap(Mesa.lat, Mesa.lng);
+             place= Mesa.id;
+             break;
+         case "Option 4":
+             initMap(SanFrancisco.lat, SanFrancisco.lng);
+             place = SanFrancisco.id;
+             break;
+         case "Option 5":
+             initMap(Scottsdale.lat, Scottsdale.lng);
+             place = Scottsdale.id;
+             break;
+         case "Option 6":
+             initMap(Seattle.lat, Seattle.lng);
+             place = Seattle.id;
+     };
 
     // ajax call to municipal site
     $.ajax({
-        url: "https://municipal.systems/v1/places/usa/dataTypes/crime/data?key=" + mapKey + "&limit=" + limit,
+        url: "https://municipal.systems/v1/places/" + place + "/dataTypes/crime/data?key=" + mapKey + "&limit=" + limit,
         method: "GET"
     }).then(function (crimeResponse) {
         console.log(crimeResponse);
@@ -69,6 +106,14 @@ submitButton.on("click", function (event) {
             incidentLong.push(crimeResponse.results[i].data.location.coordinates[0].toFixed(4));
             incidentLat.push(crimeResponse.results[i].data.location.coordinates[1].toFixed(4));
             incidentTime.push(crimeResponse.results[i].data.startedAt);
+            var coords = crimeResponse.results[i].data.location.coordinates;
+            var latLng = new google.maps.LatLng(coords[1],coords[0]);
+            var marker = new google.maps.Marker({
+            position: latLng,
+            map: map
+          });
+
+            
 
         };
     }).then(function (result) {
@@ -97,12 +142,13 @@ submitButton.on("click", function (event) {
                     //display "Full Moon"
                 } else if (moonPhaseNum >= 0.7 && moonPhaseNum <= 1.00) {
                     //display "Third Quarter Moon"
-                    alert("I'm a moon");
+                    // alert("I'm a moon");
                 };
             })
         }
 
     };
+     
 });
 
 //need to filter through results using moon phase set above
@@ -111,32 +157,7 @@ submitButton.on("click", function (event) {
         console.log(moonPhase);
     });
 
-    // grabbing value of city selected
-    city = $("#userCitySelection option:selected").val()
-
-    // returning coordinates and initiating map for each city
-    switch (city) {
-        case "Option 1":
-            initMap(Chandler.lat, Chandler.lng);
-            break;
-        case "Option 2":
-            initMap(Detroit.lat, Detroit.lng);
-            break;
-        case "Option 3":
-            initMap(Mesa.lat, Mesa.lng);
-            break;
-        case "Option 4":
-            initMap(SanFrancisco.lat, SanFrancisco.lng);
-            break;
-        case "Option 5":
-            initMap(Scottsdale.lat, Scottsdale.lng);
-            break;
-        case "Option 6":
-            initMap(Seattle.lat, Seattle.lng);
-    };
-
-
-
+   
     // function to display map
 
     function initMap(latitude, longitude) {
