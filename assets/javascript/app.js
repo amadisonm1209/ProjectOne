@@ -1,38 +1,5 @@
 // global variables
 
-const submitButton = $(".button-submit");
-const mapKey = "c760d648-3728-45a4-9c60-bf2d3ed9d5fc";
-const weatherKey = "88b9c8ef1d303abfad87f0e3796672aa";
-var incidentTime = [];
-var incidentLat = [];
-var incidentLong = [];
-var timeConvertedUnix = moment(incidentTime).format("X");
-
-var map;
-
-// establish location variables
-
-var Chandler = {
-    lat: 33.3039917,
-    lng: -111.8318716,
-    pop: "253,458",
-    id: "chn-az",
-
-};
-
-var Mesa = {
-    lat: 33.420614,
-    lng: -111.789240,
-    pop: "508,958",
-    id: "mesa-az",
-};
-
-var Scottsdale = {
-    lat: 33.483901,
-    lng: -111.908444,
-    pop: "246,645",
-    id: "sct-az",
-};
 
 var Seattle = {
     lat: 47.607803,
@@ -105,7 +72,6 @@ submitButton.on("click", function (event) {
         for (var i = 0; i < crimeResponse.results.length; i++) {
             incidentLong.push(crimeResponse.results[i].data.location.coordinates[0].toFixed(4));
             incidentLat.push(crimeResponse.results[i].data.location.coordinates[1].toFixed(4));
-            incidentTime.push(crimeResponse.results[i].data.startedAt);
             var coords = crimeResponse.results[i].data.location.coordinates;
             var latLng = new google.maps.LatLng(coords[1],coords[0]);
             var marker = new google.maps.Marker({
@@ -117,7 +83,6 @@ submitButton.on("click", function (event) {
 
         };
     }).then(function (result) {
-        weatherResponse();
     });
 
     //ajax call using the crime data to the weather api
@@ -129,7 +94,6 @@ submitButton.on("click", function (event) {
                 method: "GET"
             }).then(function (weatherResponse) {
 
-                var weatherSummary = weatherResponse.currently.summary;
                 //display weather summary 
                 var moonPhaseNum = weatherResponse.daily.data[0].moonPhase;
 
