@@ -78,6 +78,11 @@ submitButton.on("click", function (event) {
     var limit = $("#userEntrySelection").val();
     var place
 
+    if (limit > 100) {
+        $("#inputErrorText").show();
+        return;
+    }
+    $("#inputErrorText").hide();
     // grabbing value of city selected
     city = $("#userCitySelection option:selected").val()
 
@@ -116,13 +121,13 @@ submitButton.on("click", function (event) {
         console.log(crimeResponse);
         for (var i = 0; i < crimeResponse.results.length; i++) {
 
+            incidentTime.push(crimeResponse.results[i].data.startedAt);
+            crimeSummary.push(crimeResponse.results[i].data.type);
+
             var timeConvertedUnix = moment(incidentTime[i]).format("X");
             timeConvertedUnixArray.push(timeConvertedUnix);
             incidentLong.push(crimeResponse.results[i].data.location.coordinates[0].toFixed(4));
             incidentLat.push(crimeResponse.results[i].data.location.coordinates[1].toFixed(4));
-
-            incidentTime.push(crimeResponse.results[i].data.startedAt);
-            crimeSummary.push(crimeResponse.results[i].data.type);
 
             var coords = crimeResponse.results[i].data.location.coordinates;
             var latLng = new google.maps.LatLng(coords[1], coords[0]);
@@ -143,8 +148,12 @@ submitButton.on("click", function (event) {
                 $("<td>").text(dayOfWeek),
                 $("<td>").text(date),
                 $("<td>").text(time),
-                $("<td>").addClass("temp"),
-                $("<td>").addClass("weather"),
+                // This will hold an index for the cell due to timing issues with ajax
+                // When the weather is called it will find the right cell to put the 
+                // info into by this index
+                $("<td>").attr("data-index", [i]).addClass("temp"),
+                $("<td>").attr("data-index", [i]).addClass("weather"),
+                // $("<td style='display:none;>").attr("data-index", [i]).addClass("moonphase"),
                       );
 
                       $("table > tbody").append(newRow);
@@ -155,14 +164,15 @@ submitButton.on("click", function (event) {
   
 
     //ajax call using the crime data to the weather api
-
-
+        // Sets an index outside of the scope of the forloop
+        var incidentIndex = -1;
         for (var i = 0; i < incidentLat.length; i++) {
             $.ajax({
                 url: "https://cors-anywhere.herokuapp.com/https://api.darksky.net/forecast/517426ab8a5994adb2d4d97742194e62/" + incidentLat[i] + "," + incidentLong[i] + "," + timeConvertedUnixArray[i],
                 method: "GET"
             }).then(function (weatherResponse) {
-
+                // So that we can make sure the weather gets inserted at the right time/location
+                incidentIndex++;
                 var temp = Math.round(weatherResponse.currently.temperature);
                 console.log(weatherResponse);
                 var weatherSummary = weatherResponse.currently.summary;
@@ -170,10 +180,9 @@ submitButton.on("click", function (event) {
                 moonPhaseNum.push(weatherResponse.daily.data[0].moonPhase);
                 checkMoonPhase(moonPhaseNum);
 
-                //display weather summary in table
-                $(".temp").text(temp);
-                $(".weather").text(weatherSummary);
-                
+                //display weather summary in table based on the data-index created above
+                $(".temp[data-index=" + [incidentIndex] + "]").html(temp + "&#8457;");
+                $(".weather[data-index=" + [incidentIndex] + "]").text(weatherSummary);
             });
         };
 });
@@ -197,8 +206,7 @@ $(".moon-image").on("click", function () {
         case moonPhase === "last-quarter":
             console.log(thirdQuarterMoon);
             break;
-    };
-    
+    };   
 });
 
 

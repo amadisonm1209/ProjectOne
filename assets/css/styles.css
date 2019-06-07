@@ -72,3 +72,7 @@ table {
    width: 140px;
    margin: 0 0 70px;
 }
+
+#inputErrorText {
+   color: red;
+}
