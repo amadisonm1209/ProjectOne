@@ -1,5 +1,6 @@
 // global variables
 
+
 const submitButton = $(".button-submit");
 const mapKey = "c760d648-3728-45a4-9c60-bf2d3ed9d5fc";
 const weatherKey = "88b9c8ef1d303abfad87f0e3796672aa";
@@ -39,6 +40,7 @@ var Scottsdale = {
     pop: "246,645",
     id: "sct-az",
 };
+
 
 var Seattle = {
     lat: 47.607803,
@@ -113,8 +115,10 @@ submitButton.on("click", function (event) {
             timeConvertedUnixArray.push(timeConvertedUnix);
             incidentLong.push(crimeResponse.results[i].data.location.coordinates[0].toFixed(4));
             incidentLat.push(crimeResponse.results[i].data.location.coordinates[1].toFixed(4));
+
             incidentTime.push(crimeResponse.results[i].data.startedAt);
             crimeSummary.push(crimeResponse.results[i].data.type);
+
 
             var coords = crimeResponse.results[i].data.location.coordinates;
             var latLng = new google.maps.LatLng(coords[1], coords[0]);
@@ -124,13 +128,26 @@ submitButton.on("click", function (event) {
 
             });
         };
+
     }).then(function weatherResponse() {
+
+    }).then(function (result) {
+    });
+
+    //ajax call using the crime data to the weather api
+    function weatherResponse() {
+
+
         for (var i = 0; i < incidentLat.length; i++) {
             $.ajax({
                 url: "https://cors-anywhere.herokuapp.com/https://api.darksky.net/forecast/88b9c8ef1d303abfad87f0e3796672aa/" + incidentLat[i] + "," + incidentLong[i] + "," + timeConvertedUnixArray[i],
                 method: "GET"
             }).then(function (weatherResponse) {
+
                 var weatherSummary = weatherResponse.currently.summary;
+
+
+
                 //display weather summary 
                 moonPhaseNum.push(weatherResponse.daily.data[0].moonPhase);
                 checkMoonPhase(moonPhaseNum);
