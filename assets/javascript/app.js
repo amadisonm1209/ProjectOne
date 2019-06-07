@@ -67,6 +67,8 @@ submitButton.on("click", function (event) {
 
     event.preventDefault();
 
+    $("tbody").empty();
+
     // grabbing limit value
     var limit = $("#userEntrySelection").val();
     var place
@@ -123,8 +125,28 @@ submitButton.on("click", function (event) {
                 map: map
 
             });
+
+            //format date and time for table
+            var date = moment(incidentTime[i]).format("LL");
+            var time = moment(incidentTime[i]).format("hh:mm a");
+
+            //display crime type, date, and time in the table
+            var newRow = $("<tr>").append(
+                $("<td>").text(crimeResponse.results[i].data.type),
+                $("<td>").text(date),
+                $("<td>").text(time),
+                $("<td>").addClass("weather"),
+                      );
+
+                      $("table > tbody").append(newRow);
         };
     }).then(function weatherResponse() {
+
+  
+
+    //ajax call using the crime data to the weather api
+
+
         for (var i = 0; i < incidentLat.length; i++) {
             $.ajax({
                 url: "https://cors-anywhere.herokuapp.com/https://api.darksky.net/forecast/88b9c8ef1d303abfad87f0e3796672aa/" + incidentLat[i] + "," + incidentLong[i] + "," + timeConvertedUnixArray[i],
@@ -136,9 +158,16 @@ submitButton.on("click", function (event) {
                 moonPhaseNum.push(weatherResponse.daily.data[0].moonPhase);
                 checkMoonPhase(moonPhaseNum);
 
+                console.log(weatherSummary);
+
+                moonPhaseNum.push(weatherResponse.daily.data[0].moonPhase);
+                checkMoonPhase(moonPhaseNum);
+
+                //display weather summary in table
+                $(".weather").text(weatherSummary);
             });
         };
-    });
+});
 });
 
 
