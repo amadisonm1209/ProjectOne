@@ -103,7 +103,7 @@ submitButton.on("click", function (event) {
 
     // ajax call to municipal site
     $.ajax({
-        url: "https://municipal.systems/v1/places/" + place + "/dataTypes/crime/data?key=" + mapKey + "&limit=" + limit + "&offset=10",
+        url: "https://cors-anywhere.herokuapp.com/https://municipal.systems/v1/places/" + place + "/dataTypes/crime/data?key=" + mapKey + "&limit=" + limit + "&offset=10",
         method: "GET"
     }).then(function (crimeResponse) {
         console.log(crimeResponse);
@@ -125,12 +125,6 @@ submitButton.on("click", function (event) {
             });
         };
     }).then(function weatherResponse() {
-    }).then(function (result) {
-    });
-
-    //ajax call using the crime data to the weather api
-    function weatherResponse() {
-
         for (var i = 0; i < incidentLat.length; i++) {
             $.ajax({
                 url: "https://cors-anywhere.herokuapp.com/https://api.darksky.net/forecast/88b9c8ef1d303abfad87f0e3796672aa/" + incidentLat[i] + "," + incidentLong[i] + "," + timeConvertedUnixArray[i],
@@ -141,6 +135,7 @@ submitButton.on("click", function (event) {
                 //display weather summary 
                 moonPhaseNum.push(weatherResponse.daily.data[0].moonPhase);
                 checkMoonPhase(moonPhaseNum);
+
             });
         };
     });
@@ -150,22 +145,29 @@ submitButton.on("click", function (event) {
 //need to filter through results using moon phase set above
 $(".moon-image").on("click", function () {
     var moonPhase = $(this).data("value");
-    
-    switch (moon) {
-        case moonPhase === "new-moon":
-            console.log(newMoon);
-            break;
-        case moonPhase === "first-quarter":
+   
+
+    if (moonPhase === "new-moon") {
+        $("#moonTable").empty();
+        for (i = 0; i < newMoon.length; i++) {
+            var moonInfo = $("<tr>").append(
+            $("<td>").text("Crime Type")
+            )
+            var moonRow = $("<tr>").append(
+            $("<td>").text(newMoon)
+            )
+            $(".moonFilter").append(moonInfo, moonRow);
+            }
+        }   
+        else if (moonPhase === "first-quarter") {
             console.log(firstQuarterMoon);
-            break;
-        case moonPhase === "full-moon":
+        }
+        else if (moonPhase === "full-moon") {
             console.log(fullMoon);
-            break;
-        case moonPhase === "last-quarter":
+        }
+        else {
             console.log(thirdQuarterMoon);
-            break;
-    };
-    
+        }
 });
 
 
@@ -179,6 +181,7 @@ function initMap(latitude, longitude) {
 
 
 function checkMoonPhase(moonPhaseNum) {
+
     if (moonPhaseNum >= 0 && moonPhaseNum < 0.2) {
         newMoon.push(crimeSummary);
     } else if (moonPhaseNum >= 0.2 && moonPhaseNum < 0.4) {
@@ -189,3 +192,4 @@ function checkMoonPhase(moonPhaseNum) {
         thirdQuarterMoon.push(crimeSummary);
     };
 }
+
