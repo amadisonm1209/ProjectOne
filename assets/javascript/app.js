@@ -143,6 +143,7 @@ submitButton.on("click", function (event) {
                 $("<td>").text(dayOfWeek),
                 $("<td>").text(date),
                 $("<td>").text(time),
+                $("<td>").addClass("temp"),
                 $("<td>").addClass("weather"),
                       );
 
@@ -158,19 +159,21 @@ submitButton.on("click", function (event) {
 
         for (var i = 0; i < incidentLat.length; i++) {
             $.ajax({
-                url: "https://cors-anywhere.herokuapp.com/https://api.darksky.net/forecast/88b9c8ef1d303abfad87f0e3796672aa/" + incidentLat[i] + "," + incidentLong[i] + "," + timeConvertedUnixArray[i],
+                url: "https://cors-anywhere.herokuapp.com/https://api.darksky.net/forecast/517426ab8a5994adb2d4d97742194e62/" + incidentLat[i] + "," + incidentLong[i] + "," + timeConvertedUnixArray[i],
                 method: "GET"
             }).then(function (weatherResponse) {
 
+                var temp = Math.round(weatherResponse.currently.temperature);
+                console.log(weatherResponse);
                 var weatherSummary = weatherResponse.currently.summary;
-
-                console.log(weatherSummary);
 
                 moonPhaseNum.push(weatherResponse.daily.data[0].moonPhase);
                 checkMoonPhase(moonPhaseNum);
 
                 //display weather summary in table
+                $(".temp").text(temp);
                 $(".weather").text(weatherSummary);
+                
             });
         };
 });
