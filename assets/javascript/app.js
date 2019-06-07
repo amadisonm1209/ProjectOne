@@ -77,6 +77,8 @@ submitButton.on("click", function (event) {
             var marker = new google.maps.Marker({
             position: latLng,
             map: map
+
+            
           });
 
             
