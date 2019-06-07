@@ -62,3 +62,7 @@ a{
    min-height: 355px;
    margin-top: 25px;
 }
+
+table {
+   width: 100%;
+}
