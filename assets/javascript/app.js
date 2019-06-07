@@ -143,12 +143,26 @@ submitButton.on("click", function (event) {
 //need to filter through results using moon phase set above
 $(".moon-image").on("click", function () {
     var moonPhase = $(this).data("value");
-    console.log(moonPhase);
+    
+    switch (moon) {
+        case moonPhase === "new-moon":
+            console.log(newMoon);
+            break;
+        case moonPhase === "first-quarter":
+            console.log(firstQuarterMoon);
+            break;
+        case moonPhase === "full-moon":
+            console.log(fullMoon);
+            break;
+        case moonPhase === "last-quarter":
+            console.log(thirdQuarterMoon);
+            break;
+    };
+    
 });
 
 
 // function to display map
-
 function initMap(latitude, longitude) {
     map = new google.maps.Map(document.getElementById('map'), {
         center: { lat: latitude, lng: longitude },
