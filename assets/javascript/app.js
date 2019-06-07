@@ -69,6 +69,8 @@ submitButton.on("click", function (event) {
 
     event.preventDefault();
 
+    $("tbody").empty();
+
     // grabbing limit value
     var limit = $("#userEntrySelection").val();
     var place
@@ -119,7 +121,6 @@ submitButton.on("click", function (event) {
             incidentTime.push(crimeResponse.results[i].data.startedAt);
             crimeSummary.push(crimeResponse.results[i].data.type);
 
-
             var coords = crimeResponse.results[i].data.location.coordinates;
             var latLng = new google.maps.LatLng(coords[1], coords[0]);
             var marker = new google.maps.Marker({
@@ -127,15 +128,27 @@ submitButton.on("click", function (event) {
                 map: map
 
             });
+
+            //format date and time for table
+            var date = moment(incidentTime[i]).format("LL");
+            var time = moment(incidentTime[i]).format("hh:mm a");
+
+            //display crime type, date, and time in the table
+            var newRow = $("<tr>").append(
+                $("<td>").text(crimeResponse.results[i].data.type),
+                $("<td>").text(date),
+                $("<td>").text(time),
+                $("<td>").addClass("weather"),
+                      );
+
+                      $("table > tbody").append(newRow);
         };
 
     }).then(function weatherResponse() {
 
-    }).then(function (result) {
-    });
+  
 
     //ajax call using the crime data to the weather api
-    function weatherResponse() {
 
 
         for (var i = 0; i < incidentLat.length; i++) {
@@ -146,14 +159,16 @@ submitButton.on("click", function (event) {
 
                 var weatherSummary = weatherResponse.currently.summary;
 
+                console.log(weatherSummary);
 
-
-                //display weather summary 
                 moonPhaseNum.push(weatherResponse.daily.data[0].moonPhase);
                 checkMoonPhase(moonPhaseNum);
+
+                //display weather summary in table
+                $(".weather").text(weatherSummary);
             });
         };
-    });
+});
 });
 
 
