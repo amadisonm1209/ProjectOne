@@ -17,6 +17,8 @@ var crimeSummary = [];
 
 var map;
 
+$("table").hide();
+
 // establish location variables
 
 var Chandler = {
@@ -64,6 +66,7 @@ submitButton.on("click", function (event) {
     event.preventDefault();
 
     $("tbody").empty();
+    $("table").show();
 
     // grabbing limit value
     var limit = $("#userEntrySelection").val();
@@ -127,10 +130,12 @@ submitButton.on("click", function (event) {
             //format date and time for table
             var date = moment(incidentTime[i]).format("LL");
             var time = moment(incidentTime[i]).format("hh:mm a");
+            var dayOfWeek = moment(incidentTime[i]).format("dddd");
 
             //display crime type, date, and time in the table
             var newRow = $("<tr>").append(
                 $("<td>").text(crimeResponse.results[i].data.type),
+                $("<td>").text(dayOfWeek),
                 $("<td>").text(date),
                 $("<td>").text(time),
                 $("<td>").addClass("weather"),
