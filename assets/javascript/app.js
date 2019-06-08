@@ -17,6 +17,8 @@ var weatherSummaryArray = [];
 
 var map;
 
+$("table").hide();
+
 // establish location variables
 
 var Chandler = {
@@ -69,11 +71,17 @@ submitButton.on("click", function (event) {
     event.preventDefault();
 
     $("tbody").empty();
+    $("table").show();
 
     // grabbing limit value
     var limit = $("#userEntrySelection").val();
     var place
 
+    if (limit > 100) {
+        $("#inputErrorText").show();
+        return;
+    }
+    $("#inputErrorText").hide();
     // grabbing value of city selected
     city = $("#userCitySelection option:selected").val()
 
@@ -135,6 +143,13 @@ submitButton.on("click", function (event) {
             incidentLat.push(crimeResponse.results[i].data.location.coordinates[1].toFixed(4));
             incidentTime.push(moment(crimeResponse.results[i].data.startedAt).format("X"));
             crimeSummary.push(crimeResponse.results[i].data.type);
+            incidentTime.push(crimeResponse.results[i].data.startedAt);
+            crimeSummary.push(crimeResponse.results[i].data.type);
+
+            var timeConvertedUnix = moment(incidentTime[i]).format("X");
+            timeConvertedUnixArray.push(timeConvertedUnix);
+            incidentLong.push(crimeResponse.results[i].data.location.coordinates[0].toFixed(4));
+            incidentLat.push(crimeResponse.results[i].data.location.coordinates[1].toFixed(4));
 
             var coords = crimeResponse.results[i].data.location.coordinates;
             var latLng = new google.maps.LatLng(coords[1], coords[0]);
@@ -147,16 +162,25 @@ submitButton.on("click", function (event) {
             //format date and time for table
             var date = moment(incidentTime[i], "X").format("LL");
             var time = moment(incidentTime[i], "X").format("hh:mm a");
+            var date = moment(incidentTime[i]).format("LL");
+            var time = moment(incidentTime[i]).format("hh:mm a");
+            var dayOfWeek = moment(incidentTime[i]).format("dddd");
 
             //display crime type, date, and time in the table
             var newRow = $("<tr>").append(
                 $("<td>").text(crimeResponse.results[i].data.type),
+                $("<td>").text(dayOfWeek),
                 $("<td>").text(date),
                 $("<td>").text(time),
                 $("<td>").addClass("weather"),
             );
             newRow.attr("id", i);
-
+                // This will hold an index for the cell due to timing issues with ajax
+                // When the weather is called it will find the right cell to put the 
+                // info into by this index
+                $("<td>").attr("data-index", [i]).addClass("temp"),
+                $("<td>").attr("data-index", [i]).addClass("weather"),
+                // $("<td style='display:none;>").attr("data-index", [i]).addClass("moonphase"),
             $("table > tbody").append(newRow);
           
         };
@@ -183,6 +207,30 @@ $(".moon-image").on("click", function () {
     if (moonPhase === "new-moon") {
 
         for (var i = 0; i < newMoon[0].length; i++) {
+    //ajax call using the crime data to the weather api
+        // Sets an index outside of the scope of the forloop
+        var incidentIndex = -1;
+        for (var i = 0; i < incidentLat.length; i++) {
+            $.ajax({
+                url: "https://cors-anywhere.herokuapp.com/https://api.darksky.net/forecast/517426ab8a5994adb2d4d97742194e62/" + incidentLat[i] + "," + incidentLong[i] + "," + timeConvertedUnixArray[i],
+                method: "GET"
+            }).then(function (weatherResponse) {
+                // So that we can make sure the weather gets inserted at the right time/location
+                incidentIndex++;
+                var temp = Math.round(weatherResponse.currently.temperature);
+                console.log(weatherResponse);
+                var weatherSummary = weatherResponse.currently.summary;
+
+                moonPhaseNum.push(weatherResponse.daily.data[0].moonPhase);
+                checkMoonPhase(moonPhaseNum);
+
+                //display weather summary in table based on the data-index created above
+                $(".temp[data-index=" + [incidentIndex] + "]").html(temp + "&#8457;");
+                $(".weather[data-index=" + [incidentIndex] + "]").text(weatherSummary);
+            });
+        };
+});
+});
 
             var crimeRow = $("<tr><td>");
             crimeRow.text("Here");
@@ -217,6 +265,24 @@ $(".moon-image").on("click", function () {
 
         }
     }
+//need to filter through results using moon phase set above
+$(".moon-image").on("click", function () {
+    var moonPhase = $(this).data("value");
+    
+    switch (moon) {
+        case moonPhase === "new-moon":
+            console.log(newMoon);
+            break;
+        case moonPhase === "first-quarter":
+            console.log(firstQuarterMoon);
+            break;
+        case moonPhase === "full-moon":
+            console.log(fullMoon);
+            break;
+        case moonPhase === "last-quarter":
+            console.log(thirdQuarterMoon);
+            break;
+    };   
 });
 
 

@@ -39,7 +39,7 @@
           <div class="row">
             <div class="eight columns">
               <label for="userCitySelection">Choose a City</label>
-              <select class="u-full-width" id="userCitySelection">
+              <select id="userCitySelection">
                 <option value="Option 1">Chandler</option>
                 <option value="Option 2">Detroit</option>
                 <option value="Option 3">Mesa</option>
@@ -48,9 +48,13 @@
                 <option value="Option 6">Seattle</option>
               </select>
             </div>
+
           </div>
           <label for="numberOfEntries">Number of Entries</label>
-          <input class="u-full-width" type="number" placeholder="Number 1-100" id="userEntrySelection" min="1" max="100">
+          <input type="number" placeholder="1-100" id="userEntrySelection" min="1" max="100">
+
+          <p id="inputErrorText" style="display:none;">Please enter a value between 1 and 100</p>
+
           <input class="button-submit" type="submit" value="Submit">
         </form>
       </div>
@@ -76,11 +80,15 @@
       <div class="offset-by-two twelve columns">
       <div class="offset-by-three twelve columns">
         <table id = "clearTable">
+      <div class="twelve columns table">
+        <table>
           <thead>
             <tr>
               <th>Crime Type</th>
+              <th>Day of Week</th>
               <th>Date</th>
               <th>Time</th>
+              <th>Temp</th>
               <th>Weather</th>
             </tr>
           </thead>
