@@ -44,12 +44,6 @@ var Scottsdale = {
 };
 
 
-var Seattle = {
-    lat: 47.607803,
-    lng: -122.331341,
-    pop: "744,955",
-    id: "sea-wa",
-};
 
 var SanFrancisco = {
     lat: 37.769866,
@@ -107,10 +101,7 @@ submitButton.on("click", function (event) {
         case "Option 5":
             initMap(Scottsdale.lat, Scottsdale.lng);
             place = Scottsdale.id;
-            break;
-        case "Option 6":
-            initMap(Seattle.lat, Seattle.lng);
-            place = Seattle.id;
+          
     };
 
     // ajax call to municipal site
@@ -133,9 +124,13 @@ submitButton.on("click", function (event) {
             var latLng = new google.maps.LatLng(coords[1], coords[0]);
             var marker = new google.maps.Marker({
                 position: latLng,
+                icon: 'assets/images/thief.png',
+                animation:google.maps.Animation.BOUNCE,
                 map: map
 
             });
+           
+            
 
             //format date and time for table
             var date = moment(incidentTime[i]).format("LL");
@@ -230,3 +225,5 @@ function checkMoonPhase(moonPhaseNum) {
         thirdQuarterMoon.push(crimeSummary);
     };
 }
+
+
