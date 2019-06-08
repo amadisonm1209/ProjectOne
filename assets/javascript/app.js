@@ -2,7 +2,7 @@
 
 const submitButton = $(".button-submit");
 const mapKey = "c760d648-3728-45a4-9c60-bf2d3ed9d5fc";
-const weatherKey = "88b9c8ef1d303abfad87f0e3796672aa";
+const weatherKey = "05af7fb84d059448719e29570f453dd0";
 var incidentTime = [];
 var incidentLat = [];
 var incidentLong = [];
@@ -13,6 +13,7 @@ var firstQuarterMoon = [];
 var fullMoon = [];
 var thirdQuarterMoon = [];
 var crimeSummary = [];
+var weatherSummaryArray = [];
 
 var map;
 
@@ -106,16 +107,33 @@ submitButton.on("click", function (event) {
     // ajax call to municipal site
     $.ajax({
         url: "https://cors-anywhere.herokuapp.com/https://municipal.systems/v1/places/" + place + "/dataTypes/crime/data?key=" + mapKey + "&limit=" + limit + "&offset=10",
-        method: "GET"
+        method: "GET",
+        success: function() {
+            console.log("Here");
+            for (var i = 0; i < incidentLat.length; i++) {
+                $.ajax({
+                    url: "https://cors-anywhere.herokuapp.com/https://api.darksky.net/forecast/05af7fb84d059448719e29570f453dd0/" + incidentLat[i] + "," + incidentLong[i] + "," + incidentTime[i],
+                    method: "GET",
+                }).then(function (weatherResponse) {
+                    weatherSummaryArray.push(weatherResponse.currently.summary);
+                    console.log(weatherSummaryArray);
+        
+                    // $(".weather").text(weatherSummaryArray[i]);
+                    moonPhaseNum.push(weatherResponse.daily.data[0].moonPhase);
+                    console.log(moonPhaseNum);
+        
+                    $("#" + i).find("td.weather").text(weatherResponse.daily.data[0].summary);
+                    console.log(weatherResponse.daily.data[0].summary)
+                });
+            };
+        }
     }).then(function (crimeResponse) {
         console.log(crimeResponse);
         for (var i = 0; i < crimeResponse.results.length; i++) {
 
-            var timeConvertedUnix = moment(incidentTime[i]).format("X");
-            timeConvertedUnixArray.push(timeConvertedUnix);
             incidentLong.push(crimeResponse.results[i].data.location.coordinates[0].toFixed(4));
             incidentLat.push(crimeResponse.results[i].data.location.coordinates[1].toFixed(4));
-            incidentTime.push(crimeResponse.results[i].data.startedAt);
+            incidentTime.push(moment(crimeResponse.results[i].data.startedAt).format("X"));
             crimeSummary.push(crimeResponse.results[i].data.type);
 
             var coords = crimeResponse.results[i].data.location.coordinates;
@@ -127,8 +145,8 @@ submitButton.on("click", function (event) {
             });
 
             //format date and time for table
-            var date = moment(incidentTime[i]).format("LL");
-            var time = moment(incidentTime[i]).format("hh:mm a");
+            var date = moment(incidentTime[i], "X").format("LL");
+            var time = moment(incidentTime[i], "X").format("hh:mm a");
 
             //display crime type, date, and time in the table
             var newRow = $("<tr>").append(
@@ -136,67 +154,69 @@ submitButton.on("click", function (event) {
                 $("<td>").text(date),
                 $("<td>").text(time),
                 $("<td>").addClass("weather"),
-                      );
+            );
+            newRow.attr("id", i);
 
-                      $("table > tbody").append(newRow);
+            $("table > tbody").append(newRow);
+          
         };
-    }).then(function weatherResponse() {
 
-  
+    })
 
-    //ajax call using the crime data to the weather api
-
-
-        for (var i = 0; i < incidentLat.length; i++) {
-            $.ajax({
-                url: "https://cors-anywhere.herokuapp.com/https://api.darksky.net/forecast/88b9c8ef1d303abfad87f0e3796672aa/" + incidentLat[i] + "," + incidentLong[i] + "," + timeConvertedUnixArray[i],
-                method: "GET"
-            }).then(function (weatherResponse) {
-                var weatherSummary = weatherResponse.currently.summary;
-
-                //display weather summary 
-                moonPhaseNum.push(weatherResponse.daily.data[0].moonPhase);
-                checkMoonPhase(moonPhaseNum);
-
-                console.log(weatherSummary);
-
-                moonPhaseNum.push(weatherResponse.daily.data[0].moonPhase);
-                checkMoonPhase(moonPhaseNum);
-
-                //display weather summary in table
-                $(".weather").text(weatherSummary);
-            });
-        };
 });
-});
+
+// }).done(function () {
+//     checkMoonPhase();
+
+
 
 
 //need to filter through results using moon phase set above
 $(".moon-image").on("click", function () {
+    console.log(newMoon);
     var moonPhase = $(this).data("value");
-   
+    var newRow = $("<tr>");
+    newRow.text("Crime Type");
+    newRow.addClass("moon-filters");
+    $("#putMoonsHere").append(newRow);
 
     if (moonPhase === "new-moon") {
-        $("#moonTable").empty();
-        for (i = 0; i < newMoon.length; i++) {
-            var moonInfo = $("<tr>").append(
-            $("<td>").text("Crime Type")
-            )
-            var moonRow = $("<tr>").append(
-            $("<td>").text(newMoon)
-            )
-            $(".moonFilter").append(moonInfo, moonRow);
-            }
-        }   
-        else if (moonPhase === "first-quarter") {
-            console.log(firstQuarterMoon);
+
+        for (var i = 0; i < newMoon[0].length; i++) {
+
+            var crimeRow = $("<tr><td>");
+            crimeRow.text("Here");
+            newRow.append(crimeRow);
+
         }
-        else if (moonPhase === "full-moon") {
-            console.log(fullMoon);
+    }
+    else if (moonPhase === "first-quarter") {
+        for (var i = 0; i < firstQuarterMoon[0].length; i++) {
+
+            var crimeRow = $("<tr><td>");
+            crimeRow.text("Here");
+            newRow.append(crimeRow);
+
         }
-        else {
-            console.log(thirdQuarterMoon);
+    }
+    else if (moonPhase === "full-moon") {
+        for (var i = 0; i < fullMoon[0].length; i++) {
+
+            var crimeRow = $("<tr><td>");
+            crimeRow.text("Here");
+            newRow.append(crimeRow);
+
         }
+    }
+    else {
+        for (var i = 0; i < thirdQuarterMoon[0].length; i++) {
+
+            var crimeRow = $("<tr><td>");
+            crimeRow.text("Here");
+            newRow.append(crimeRow);
+
+        }
+    }
 });
 
 
@@ -209,16 +229,20 @@ function initMap(latitude, longitude) {
 };
 
 
-function checkMoonPhase(moonPhaseNum) {
+function checkMoonPhase() {
 
     if (moonPhaseNum >= 0 && moonPhaseNum < 0.2) {
         newMoon.push(crimeSummary);
+        console.log(newMoon);
     } else if (moonPhaseNum >= 0.2 && moonPhaseNum < 0.4) {
         firstQuarterMoon.push(crimeSummary);
     } else if (moonPhaseNum >= 0.4 && moonPhaseNum < 0.7) {
         fullMoon.push(crimeSummary);
+        console.log(fullMoon);
     } else if (moonPhaseNum >= 0.7 && moonPhaseNum <= 1.00) {
         thirdQuarterMoon.push(crimeSummary);
+        console.log(thirdQuarterMoon);
     };
 }
+
 
