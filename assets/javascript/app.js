@@ -1,8 +1,9 @@
 // global variables
 
+
 const submitButton = $(".button-submit");
 const mapKey = "c760d648-3728-45a4-9c60-bf2d3ed9d5fc";
-const weatherKey = "05af7fb84d059448719e29570f453dd0";
+const weatherKey = "88b9c8ef1d303abfad87f0e3796672aa";
 var incidentTime = [];
 var incidentLat = [];
 var incidentLong = [];
@@ -13,7 +14,8 @@ var firstQuarterMoon = [];
 var fullMoon = [];
 var thirdQuarterMoon = [];
 var crimeSummary = [];
-var weatherSummaryArray = [];
+var moonClick = false;
+var isSubmitClicked = false;
 
 var map;
 
@@ -43,6 +45,7 @@ var Scottsdale = {
     id: "sct-az",
 };
 
+
 var Seattle = {
     lat: 47.607803,
     lng: -122.331341,
@@ -67,224 +70,205 @@ var Detroit = {
 // on click submit button event
 
 submitButton.on("click", function (event) {
-
     event.preventDefault();
 
-    $("tbody").empty();
-    $("table").show();
+    if (isSubmitClicked === false) {
+        isSubmitClicked = true;
 
-    // grabbing limit value
-    var limit = $("#userEntrySelection").val();
-    var place
+        $("tbody").empty();
+        $("table").show();
 
-    if (limit > 100) {
-        $("#inputErrorText").show();
-        return;
-    }
-    $("#inputErrorText").hide();
-    // grabbing value of city selected
-    city = $("#userCitySelection option:selected").val()
+        // grabbing limit value
+        var limit = $("#userEntrySelection").val();
+        var place
 
-    // returning coordinates and initiating map for each city
-    switch (city) {
-        case "Option 1":
-            initMap(Chandler.lat, Chandler.lng);
-            place = Chandler.id;
-            break;
-        case "Option 2":
-            initMap(Detroit.lat, Detroit.lng);
-            place = Detroit.id;
-            break;
-        case "Option 3":
-            initMap(Mesa.lat, Mesa.lng);
-            place = Mesa.id;
-            break;
-        case "Option 4":
-            initMap(SanFrancisco.lat, SanFrancisco.lng);
-            place = SanFrancisco.id;
-            break;
-        case "Option 5":
-            initMap(Scottsdale.lat, Scottsdale.lng);
-            place = Scottsdale.id;
-            break;
-        case "Option 6":
-            initMap(Seattle.lat, Seattle.lng);
-            place = Seattle.id;
-    };
+        if (limit > 100) {
+            $("#inputErrorText").show();
+            return;
+        }
+        $("#inputErrorText").hide();
+        // grabbing value of city selected
+        city = $("#userCitySelection option:selected").val()
 
-    // ajax call to municipal site
-    $.ajax({
-        url: "https://cors-anywhere.herokuapp.com/https://municipal.systems/v1/places/" + place + "/dataTypes/crime/data?key=" + mapKey + "&limit=" + limit + "&offset=10",
-        method: "GET",
-        success: function() {
-            console.log("Here");
+        // returning coordinates and initiating map for each city
+        switch (city) {
+            case "Option 1":
+                initMap(Chandler.lat, Chandler.lng);
+                place = Chandler.id;
+                break;
+            case "Option 2":
+                initMap(Detroit.lat, Detroit.lng);
+                place = Detroit.id;
+                break;
+            case "Option 3":
+                initMap(Mesa.lat, Mesa.lng);
+                place = Mesa.id;
+                break;
+            case "Option 4":
+                initMap(SanFrancisco.lat, SanFrancisco.lng);
+                place = SanFrancisco.id;
+                break;
+            case "Option 5":
+                initMap(Scottsdale.lat, Scottsdale.lng);
+                place = Scottsdale.id;
+                break;
+            case "Option 6":
+                initMap(Seattle.lat, Seattle.lng);
+                place = Seattle.id;
+        };
+
+        // ajax call to municipal site
+        $.ajax({
+            url: "https://municipal.systems/v1/places/" + place + "/dataTypes/crime/data?key=" + mapKey + "&limit=" + limit + "&offset=10",
+            method: "GET"
+        }).then(function (crimeResponse) {
+            console.log(crimeResponse);
+            for (var i = 0; i < crimeResponse.results.length; i++) {
+
+                incidentTime.push(crimeResponse.results[i].data.startedAt);
+                crimeSummary.push(crimeResponse.results[i].data.type);
+
+                var timeConvertedUnix = moment(incidentTime[i]).format("X");
+                timeConvertedUnixArray.push(timeConvertedUnix);
+                incidentLong.push(crimeResponse.results[i].data.location.coordinates[0].toFixed(4));
+                incidentLat.push(crimeResponse.results[i].data.location.coordinates[1].toFixed(4));
+
+                var coords = crimeResponse.results[i].data.location.coordinates;
+                var latLng = new google.maps.LatLng(coords[1], coords[0]);
+                var marker = new google.maps.Marker({
+                    position: latLng,
+                    map: map
+
+                });
+
+                //format date and time for table
+                var date = moment(incidentTime[i]).format("LL");
+                var time = moment(incidentTime[i]).format("hh:mm a");
+                var dayOfWeek = moment(incidentTime[i]).format("dddd");
+
+                //display crime type, date, and time in the table
+                var newRow = $("<tr>").append(
+                    $("<td>").text(crimeResponse.results[i].data.type),
+                    $("<td>").text(dayOfWeek),
+                    $("<td>").text(date),
+                    $("<td>").text(time),
+                    // This will hold an index for the cell due to timing issues with ajax
+                    // When the weather is called it will find the right cell to put the 
+                    // info into by this index
+                    $("<td>").attr("data-index", [i]).addClass("temp"),
+                    $("<td>").attr("data-index", [i]).addClass("weather"),
+                    // $("<td style='display:none;>").attr("data-index", [i]).addClass("moonphase"),
+                );
+
+                $("table > tbody").append(newRow);
+            };
+
+        }).then(function weatherResponse() {
+
+            //ajax call using the crime data to the weather api
+            // Sets an index outside of the scope of the forloop
+            var incidentIndex = -1;
             for (var i = 0; i < incidentLat.length; i++) {
                 $.ajax({
-                    url: "https://cors-anywhere.herokuapp.com/https://api.darksky.net/forecast/05af7fb84d059448719e29570f453dd0/" + incidentLat[i] + "," + incidentLong[i] + "," + incidentTime[i],
-                    method: "GET",
+                    url: "https://cors-anywhere.herokuapp.com/https://api.darksky.net/forecast/517426ab8a5994adb2d4d97742194e62/" + incidentLat[i] + "," + incidentLong[i] + "," + timeConvertedUnixArray[i],
+                    method: "GET"
                 }).then(function (weatherResponse) {
-                    weatherSummaryArray.push(weatherResponse.currently.summary);
-                    console.log(weatherSummaryArray);
-        
-                    // $(".weather").text(weatherSummaryArray[i]);
+                    // So that we can make sure the weather gets inserted at the right time/location
+                    incidentIndex++;
+                    var temp = Math.round(weatherResponse.currently.temperature);
+                    var weatherSummary = weatherResponse.currently.summary;
+
                     moonPhaseNum.push(weatherResponse.daily.data[0].moonPhase);
                     console.log(moonPhaseNum);
-        
-                    $("#" + i).find("td.weather").text(weatherResponse.daily.data[0].summary);
-                    console.log(weatherResponse.daily.data[0].summary)
+
+
+                    //display weather summary in table based on the data-index created above
+                    $(".temp[data-index=" + [incidentIndex] + "]").html(temp + "&#8457;");
+                    $(".weather[data-index=" + [incidentIndex] + "]").text(weatherSummary);
                 });
             };
-        }
-    }).then(function (crimeResponse) {
-        console.log(crimeResponse);
-        for (var i = 0; i < crimeResponse.results.length; i++) {
-
-            incidentLong.push(crimeResponse.results[i].data.location.coordinates[0].toFixed(4));
-            incidentLat.push(crimeResponse.results[i].data.location.coordinates[1].toFixed(4));
-            incidentTime.push(moment(crimeResponse.results[i].data.startedAt).format("X"));
-            crimeSummary.push(crimeResponse.results[i].data.type);
-            incidentTime.push(crimeResponse.results[i].data.startedAt);
-            crimeSummary.push(crimeResponse.results[i].data.type);
-
-            var timeConvertedUnix = moment(incidentTime[i]).format("X");
-            timeConvertedUnixArray.push(timeConvertedUnix);
-            incidentLong.push(crimeResponse.results[i].data.location.coordinates[0].toFixed(4));
-            incidentLat.push(crimeResponse.results[i].data.location.coordinates[1].toFixed(4));
-
-            var coords = crimeResponse.results[i].data.location.coordinates;
-            var latLng = new google.maps.LatLng(coords[1], coords[0]);
-            var marker = new google.maps.Marker({
-                position: latLng,
-                map: map
-
-            });
-
-            //format date and time for table
-            var date = moment(incidentTime[i], "X").format("LL");
-            var time = moment(incidentTime[i], "X").format("hh:mm a");
-            var date = moment(incidentTime[i]).format("LL");
-            var time = moment(incidentTime[i]).format("hh:mm a");
-            var dayOfWeek = moment(incidentTime[i]).format("dddd");
-
-            //display crime type, date, and time in the table
-            var newRow = $("<tr>").append(
-                $("<td>").text(crimeResponse.results[i].data.type),
-                $("<td>").text(dayOfWeek),
-                $("<td>").text(date),
-                $("<td>").text(time),
-                $("<td>").addClass("weather"),
-            );
-            newRow.attr("id", i);
-                // This will hold an index for the cell due to timing issues with ajax
-                // When the weather is called it will find the right cell to put the 
-                // info into by this index
-                $("<td>").attr("data-index", [i]).addClass("temp"),
-                $("<td>").attr("data-index", [i]).addClass("weather"),
-                // $("<td style='display:none;>").attr("data-index", [i]).addClass("moonphase"),
-            $("table > tbody").append(newRow);
-          
-        };
-
-    })
-
+        });
+    } else {
+        resetData();
+    }
 });
-
-// }).done(function () {
-//     checkMoonPhase();
-
 
 
 
 //need to filter through results using moon phase set above
 $(".moon-image").on("click", function () {
-    console.log(newMoon);
-    var moonPhase = $(this).data("value");
-    var newRow = $("<tr>");
-    newRow.text("Crime Type");
-    newRow.addClass("moon-filters");
-    $("#putMoonsHere").append(newRow);
 
-    if (moonPhase === "new-moon") {
+    checkMoonPhase();
 
-        for (var i = 0; i < newMoon[0].length; i++) {
-    //ajax call using the crime data to the weather api
-        // Sets an index outside of the scope of the forloop
-        var incidentIndex = -1;
-        for (var i = 0; i < incidentLat.length; i++) {
-            $.ajax({
-                url: "https://cors-anywhere.herokuapp.com/https://api.darksky.net/forecast/517426ab8a5994adb2d4d97742194e62/" + incidentLat[i] + "," + incidentLong[i] + "," + timeConvertedUnixArray[i],
-                method: "GET"
-            }).then(function (weatherResponse) {
-                // So that we can make sure the weather gets inserted at the right time/location
-                incidentIndex++;
-                var temp = Math.round(weatherResponse.currently.temperature);
-                console.log(weatherResponse);
-                var weatherSummary = weatherResponse.currently.summary;
+    if (moonClick === false) {
+        moonClick = true;
 
-                moonPhaseNum.push(weatherResponse.daily.data[0].moonPhase);
-                checkMoonPhase(moonPhaseNum);
+        var moonPhase = $(this).data("value");
+        console.log(moonPhase);
 
-                //display weather summary in table based on the data-index created above
-                $(".temp[data-index=" + [incidentIndex] + "]").html(temp + "&#8457;");
-                $(".weather[data-index=" + [incidentIndex] + "]").text(weatherSummary);
-            });
-        };
+        $("tbody").empty();
+        $("thead").empty();
+
+
+        if (moonPhase === "new-moon") {
+            var headerRow = $("<th>");
+            headerRow.text("New Moon Crimes");
+            $("thead").append(headerRow);
+
+            for (var i = 0; i < newMoon.length; i++) {
+                var newRow = $("<tr>");
+                var crimeRow = $("<td>");
+                crimeRow.text(newMoon[i]);
+                newRow.append(crimeRow);
+                $("tbody").append(newRow);
+
+            }
+        } else if (moonPhase === "first-quarter") {
+            var headerRow = $("<th>");
+            headerRow.text("First Quarter Moon Crimes");
+            $("thead").append(headerRow);
+
+            for (var i = 0; i < firstQuarterMoon.length; i++) {
+                var newRow = $("<tr>");
+                var crimeRow = $("<td>");
+                crimeRow.text(firstQuarterMoon[i]);
+                newRow.append(crimeRow);
+                $("tbody").append(newRow);
+
+            }
+        } else if (moonPhase === "full-moon") {
+            var headerRow = $("<th>");
+            headerRow.text("Full Moon Crimes");
+            $("thead").append(headerRow);
+
+            for (var i = 0; i < fullMoon.length; i++) {
+                var newRow = $("<tr>");
+                var crimeRow = $("<td>");
+                crimeRow.text(fullMoon[i]);
+                newRow.append(crimeRow);
+                $("tbody").append(newRow);
+
+            }
+        }
+        else {
+            var headerRow = $("<th>");
+            headerRow.text("Last Quarter Moon Crimes");
+            $("thead").append(headerRow);
+
+            for (var i = 0; i < thirdQuarterMoon.length; i++) {
+                var newRow = $("<tr>");
+                var crimeRow = $("<td>");
+                crimeRow.text(thirdQuarterMoon[i]);
+                newRow.append(crimeRow);
+                $("tbody").append(newRow);
+
+            }
+        }
+    } else if (moonClick === true) {
+        resetTable();
+
+    }
 });
-});
-
-            var crimeRow = $("<tr><td>");
-            crimeRow.text("Here");
-            newRow.append(crimeRow);
-
-        }
-    }
-    else if (moonPhase === "first-quarter") {
-        for (var i = 0; i < firstQuarterMoon[0].length; i++) {
-
-            var crimeRow = $("<tr><td>");
-            crimeRow.text("Here");
-            newRow.append(crimeRow);
-
-        }
-    }
-    else if (moonPhase === "full-moon") {
-        for (var i = 0; i < fullMoon[0].length; i++) {
-
-            var crimeRow = $("<tr><td>");
-            crimeRow.text("Here");
-            newRow.append(crimeRow);
-
-        }
-    }
-    else {
-        for (var i = 0; i < thirdQuarterMoon[0].length; i++) {
-
-            var crimeRow = $("<tr><td>");
-            crimeRow.text("Here");
-            newRow.append(crimeRow);
-
-        }
-    }
-//need to filter through results using moon phase set above
-$(".moon-image").on("click", function () {
-    var moonPhase = $(this).data("value");
-    
-    switch (moon) {
-        case moonPhase === "new-moon":
-            console.log(newMoon);
-            break;
-        case moonPhase === "first-quarter":
-            console.log(firstQuarterMoon);
-            break;
-        case moonPhase === "full-moon":
-            console.log(fullMoon);
-            break;
-        case moonPhase === "last-quarter":
-            console.log(thirdQuarterMoon);
-            break;
-    };   
-});
-
 
 // function to display map
 function initMap(latitude, longitude) {
@@ -294,21 +278,36 @@ function initMap(latitude, longitude) {
     });
 };
 
-
 function checkMoonPhase() {
+    for (var i = 0; i < moonPhaseNum.length; i++) {
+        if (moonPhaseNum[i] >= 0 && moonPhaseNum[i] < 0.2) {
+            newMoon.push(crimeSummary[i]);
+        } else if (moonPhaseNum[i] >= 0.2 && moonPhaseNum[i] < 0.4) {
+            firstQuarterMoon.push(crimeSummary[i]);
+        } else if (moonPhaseNum[i] >= 0.4 && moonPhaseNum[i] < 0.7) {
+            fullMoon.push(crimeSummary[i]);
+        } else if (moonPhaseNum[i] >= 0.7 && moonPhaseNum[i] <= 1.00) {
+            thirdQuarterMoon.push(crimeSummary[i]);
+        };
+    }
+};
 
-    if (moonPhaseNum >= 0 && moonPhaseNum < 0.2) {
-        newMoon.push(crimeSummary);
-        console.log(newMoon);
-    } else if (moonPhaseNum >= 0.2 && moonPhaseNum < 0.4) {
-        firstQuarterMoon.push(crimeSummary);
-    } else if (moonPhaseNum >= 0.4 && moonPhaseNum < 0.7) {
-        fullMoon.push(crimeSummary);
-        console.log(fullMoon);
-    } else if (moonPhaseNum >= 0.7 && moonPhaseNum <= 1.00) {
-        thirdQuarterMoon.push(crimeSummary);
-        console.log(thirdQuarterMoon);
-    };
+function resetTable() {
+    $("tbody").empty();
+    $("thead").empty();
+    newMoon = [];
+    firstQuarterMoon = [];
+    fullMoon = [];
+    thirdQuarterMoon = [];
+    moonClick = false;
+
 }
 
-
+function resetData() {
+    incidentTime = [];
+    incidentLat = [];
+    incidentLong = [];
+    timeConvertedUnixArray = [];
+    moonPhaseNum = [];
+    isSubmitClicked = false;
+}
