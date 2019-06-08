@@ -122,15 +122,26 @@ submitButton.on("click", function (event) {
 
             var coords = crimeResponse.results[i].data.location.coordinates;
             var latLng = new google.maps.LatLng(coords[1], coords[0]);
+            var message = crimeResponse.results[i].data.type;
+            
             var marker = new google.maps.Marker({
                 position: latLng,
                 icon: 'assets/images/thief.png',
                 animation:google.maps.Animation.BOUNCE,
+                clickable: true,
+                content: message,
                 map: map
-
             });
-           
-            
+
+
+            google.maps.event.addListener(marker, 'click', function() {
+                console.log(this);
+               var InfoWindow = new google.maps.InfoWindow({
+                    content: this.content,
+                });
+                InfoWindow.open(this.getMap(), this);
+            });
+              
 
             //format date and time for table
             var date = moment(incidentTime[i]).format("LL");
