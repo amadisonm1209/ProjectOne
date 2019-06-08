@@ -65,6 +65,7 @@ var Detroit = {
 
 submitButton.on("click", function (event) {
     event.preventDefault();
+    resetData();
 
     if (isSubmitClicked === false) {
         isSubmitClicked = true;
@@ -137,7 +138,6 @@ submitButton.on("click", function (event) {
                     map: map
                 });
 
-
                 google.maps.event.addListener(marker, 'click', function () {
                     console.log(this);
                     var InfoWindow = new google.maps.InfoWindow({
@@ -163,7 +163,7 @@ submitButton.on("click", function (event) {
                     // info into by this index
                     $("<td>").attr("data-index", [i]).addClass("temp"),
                     $("<td>").attr("data-index", [i]).addClass("weather"),
-                    // $("<td style='display:none;>").attr("data-index", [i]).addClass("moonphase"),
+
                 );
 
                 $("table > tbody").append(newRow);
@@ -184,8 +184,6 @@ submitButton.on("click", function (event) {
                     var weatherSummary = weatherResponse.currently.summary;
 
                     moonPhaseNum.push(weatherResponse.daily.data[0].moonPhase);
-                    console.log(moonPhaseNum);
-
 
                     //display weather summary in table based on the data-index created above
                     $(".temp[data-index=" + [incidentIndex] + "]").html(temp + "&#8457;");
@@ -200,17 +198,16 @@ submitButton.on("click", function (event) {
 
 
 
-
 //need to filter through results using moon phase set above
-$(".moon-image").on("click", function () {
-
-    checkMoonPhase();
-
+$(".moon-image").on("click", function (event) {
+    event.preventDefault();
+    resetTable();
     if (moonClick === false) {
+        checkMoonPhase();
+
         moonClick = true;
 
         var moonPhase = $(this).data("value");
-        console.log(moonPhase);
 
         $("tbody").empty();
         $("thead").empty();
@@ -227,8 +224,7 @@ $(".moon-image").on("click", function () {
                 crimeRow.text(newMoon[i]);
                 newRow.append(crimeRow);
                 $("tbody").append(newRow);
-
-            }
+            } 
         } else if (moonPhase === "first-quarter") {
             var headerRow = $("<th>");
             headerRow.text("First Quarter Moon Crimes");
@@ -241,7 +237,7 @@ $(".moon-image").on("click", function () {
                 newRow.append(crimeRow);
                 $("tbody").append(newRow);
 
-            }
+            } 
         } else if (moonPhase === "full-moon") {
             var headerRow = $("<th>");
             headerRow.text("Full Moon Crimes");
@@ -253,8 +249,8 @@ $(".moon-image").on("click", function () {
                 crimeRow.text(fullMoon[i]);
                 newRow.append(crimeRow);
                 $("tbody").append(newRow);
-
-            }
+               
+             }
         }
         else {
             var headerRow = $("<th>");
@@ -267,14 +263,12 @@ $(".moon-image").on("click", function () {
                 crimeRow.text(thirdQuarterMoon[i]);
                 newRow.append(crimeRow);
                 $("tbody").append(newRow);
-
-            }
-        }
-    } else if (moonClick === true) {
-        resetTable();
-
+               
+            } 
+        } 
     }
 });
+
 
 // function to display map
 function initMap(latitude, longitude) {
@@ -295,10 +289,11 @@ function checkMoonPhase() {
         } else if (moonPhaseNum[i] >= 0.7 && moonPhaseNum[i] <= 1.00) {
             thirdQuarterMoon.push(crimeSummary[i]);
         };
-    }
+    } 
 };
 
 function resetTable() {
+    console.log("Reset Table");
     $("tbody").empty();
     $("thead").empty();
     newMoon = [];
@@ -310,6 +305,8 @@ function resetTable() {
 }
 
 function resetData() {
+    console.log("Reset Data");
+    isSubmitClicked = false;
     $("tbody").empty();
     $("thead").empty();
     var newHead = $("<tr>").append(
@@ -326,7 +323,6 @@ function resetData() {
     incidentLong = [];
     timeConvertedUnixArray = [];
     moonPhaseNum = [];
-    isSubmitClicked = false;
 }
 
 
