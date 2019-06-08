@@ -314,6 +314,7 @@ function resetData() {
         $("<th>").text("Day of Week"),
         $("<th>").text("Date"),
         $("<th>").text("Time"),
+        $("<th>").text("Temp"),
         $("<th>").text("Weather")
     )
     $("thead").append(newHead)
