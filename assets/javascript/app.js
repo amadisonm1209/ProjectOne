@@ -46,12 +46,6 @@ var Scottsdale = {
 };
 
 
-var Seattle = {
-    lat: 47.607803,
-    lng: -122.331341,
-    pop: "744,955",
-    id: "sea-wa",
-};
 
 var SanFrancisco = {
     lat: 37.769866,
@@ -111,10 +105,7 @@ submitButton.on("click", function (event) {
             case "Option 5":
                 initMap(Scottsdale.lat, Scottsdale.lng);
                 place = Scottsdale.id;
-                break;
-            case "Option 6":
-                initMap(Seattle.lat, Seattle.lng);
-                place = Seattle.id;
+
         };
 
         // ajax call to municipal site
@@ -135,11 +126,26 @@ submitButton.on("click", function (event) {
 
                 var coords = crimeResponse.results[i].data.location.coordinates;
                 var latLng = new google.maps.LatLng(coords[1], coords[0]);
+                var message = crimeResponse.results[i].data.type;
+
                 var marker = new google.maps.Marker({
                     position: latLng,
+                    icon: 'assets/images/thief.png',
+                    animation: google.maps.Animation.BOUNCE,
+                    clickable: true,
+                    content: message,
                     map: map
-
                 });
+
+
+                google.maps.event.addListener(marker, 'click', function () {
+                    console.log(this);
+                    var InfoWindow = new google.maps.InfoWindow({
+                        content: this.content,
+                    });
+                    InfoWindow.open(this.getMap(), this);
+                });
+
 
                 //format date and time for table
                 var date = moment(incidentTime[i]).format("LL");
@@ -162,7 +168,6 @@ submitButton.on("click", function (event) {
 
                 $("table > tbody").append(newRow);
             };
-
         }).then(function weatherResponse() {
 
             //ajax call using the crime data to the weather api
@@ -192,6 +197,7 @@ submitButton.on("click", function (event) {
         resetData();
     }
 });
+
 
 
 
@@ -304,6 +310,17 @@ function resetTable() {
 }
 
 function resetData() {
+    $("tbody").empty();
+    $("thead").empty();
+    var newHead = $("<tr>").append(
+        $("<th>").text("Crime Type"),
+        $("<th>").text("Day of Week"),
+        $("<th>").text("Date"),
+        $("<th>").text("Time"),
+        $("<th>").text("Weather")
+    )
+    $("thead").append(newHead)
+
     incidentTime = [];
     incidentLat = [];
     incidentLong = [];
@@ -311,3 +328,5 @@ function resetData() {
     moonPhaseNum = [];
     isSubmitClicked = false;
 }
+
+
